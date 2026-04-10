@@ -1,0 +1,7 @@
+mkdir Graphs
+mv *.png Graphs/
+mkdir Tables
+mv *.tex Tables/
+git add .
+git commit -m "add Graphs and Tables directories"
+git push
