@@ -1,0 +1,14 @@
+# Create a new folder
+mkdir graphs
+
+# Create a placeholder file (GitHub won't commit empty folders)
+touch graphs/.gitkeep
+
+# Add to git
+git add graphs/
+
+# Commit
+git commit -m "Add graphs"
+
+# Push to GitHub
+git push origin main
