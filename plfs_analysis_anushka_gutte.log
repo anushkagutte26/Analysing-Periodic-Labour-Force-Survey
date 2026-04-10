@@ -1,0 +1,897 @@
+-------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/apple/Desktop/Professional /2026 Applications/Ashoka University/C
+> EDA/data/plfs_analysis_anushka_gutte.log
+  log type:  text
+ opened on:   4 Apr 2026, 23:34:42
+
+. 
+. use "level01_FV.dta", clear
+
+. 
+. describe
+
+Contains data from level01_FV.dta
+ Observations:       102,113                  
+    Variables:            37                  27 Jun 2019 12:12
+-------------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+-------------------------------------------------------------------------------------
+common_id       str13   %13s                  
+file_identifi~n str4    %9s                   file identification
+schedule        int     %10.0g                schdule
+quarter         str2    %9s                   quarter
+visit           str2    %9s                   visit
+sector          byte    %10.0g     sector     sector
+state           byte    %25.0g     state      state/ut code
+district        byte    %10.0g                district code
+nss_region      int     %10.0g                nss-region
+stratum         byte    %10.0g                stratum
+sub_stratum_num byte    %10.0g                sub-stratum
+sub_sample      byte    %10.0g                sub-sample
+fod_sub_region  int     %10.0g                fod sub-region
+fsu             long    %10.0g                fsu
+sample_sg_sb_no byte    %10.0g                sample sg/sb no.
+second_stage_~m byte    %10.0g                second stage stratum no.
+hh_id           byte    %10.0g                sample household number
+month_survey    byte    %10.0g                month of survey
+response_code   byte    %10.0g                response code
+survey_code     byte    %10.0g                survey code
+reason_substi~n byte    %10.0g                reason for substitution of original
+                                                household
+hh_size         byte    %10.0g                household size
+household_type  byte    %10.0g                household type
+religion        byte    %14.0g     religion   religion
+social_group    byte    %20.0g     social_group
+                                              social group
+household_con~h long    %10.0g                household's usual consumer expenditure
+                                                in a month (rs.)
+informant_ser~o byte    %10.0g                informant serial no.
+survey_date     long    %10.0g                survey date
+tot_time_take~s int     %10.0g                total time taken to canvass sch. 10.4
+nss             byte    %10.0g                ns count for sector x stratum x
+                                                substratum x sub-sample
+nsc             byte    %10.0g                ns count for sector x stratum x
+                                                substratum
+multiplier      long    %10.0g                sub-sample wise multiplier
+occ_st_sector~t byte    %10.0g                occurance of state x sector x stratum x
+                                                substratum in 4 quarters
+hh_type_r       float   %34.0g     hh_type_r
+                                              
+hh_type_u       float   %27.0g     hh_type_u
+                                              
+districtcode    long    %10.0g                
+district_name   str28   %28s                  
+-------------------------------------------------------------------------------------
+Sorted by: common_id
+
+. 
+. 
+. *******************************************************************
+. 
+. 
+. // Q1(i)
+. gen weight =.
+(102,113 missing values generated)
+
+. replace weight = multiplier/100 if nss == nsc
+(26 real changes made)
+
+. replace weight = multiplier/200 if nss != nsc
+(102,087 real changes made)
+
+. 
+. gen sampling_wt = weight/4
+
+. 
+. preserve
+
+. 
+. decode state, gen(state_name)
+
+. replace state_name = proper(state_name)
+(102,113 real changes made)
+
+. replace state_name = subinstr(state_name, "&", "\&", .)
+variable state_name was str25 now str26
+(4,195 real changes made)
+
+. 
+. collapse (mean) avg_cons_exp = household_cons_expenditure_month [pweight = sampling
+> _wt], by(state_name)
+
+.     
+. format avg_cons_exp %12.2fc
+
+.         
+. gsort -avg_cons_exp
+
+.     
+. gen rank = _n
+
+.         
+. keep if rank <= 10
+(26 observations deleted)
+
+. 
+. label variable state_name "State"
+
+. label variable rank "Rank"
+
+. label variable avg_cons_exp "Average Household Consumption"
+
+. 
+. list
+
+     +-----------------------------------------------+
+     |                 state_name   avg_con~p   rank |
+     |-----------------------------------------------|
+  1. |                 Chandigarh   17,014.61      1 |
+  2. | Andaman \& Nicobar Islands   14,979.91      2 |
+  3. |                      Delhi   14,517.24      3 |
+  4. |                Lakshadweep   14,418.77      4 |
+  5. |                        Goa   13,507.59      5 |
+     |-----------------------------------------------|
+  6. |                     Punjab   12,261.70      6 |
+  7. |                Pondicherry   12,056.21      7 |
+  8. |                    Mizoram   10,910.77      8 |
+  9. |                     Kerala   10,905.09      9 |
+ 10. |                    Haryana   10,849.47     10 |
+     +-----------------------------------------------+
+
+.         
+.  listtex rank state_name avg_cons_exp using "table_q1i.tex", ///
+>     replace rstyle(tabular) ///
+>     head("\begin{table}[H]" ///
+>          "\centering" ///
+>          "\caption{Average household consumption across states}" ///
+>          "\begin{tabular}{clc}" ///
+>          "\toprule" ///
+>          "Rank & State & Average Household Consumption (Rs.) \\" ///
+>          "\midrule") ///
+>     foot("\bottomrule" "\end{tabular}" "\end{table}")
+
+.         
+. restore
+
+. 
+. 
+. *******************************************************************
+. 
+. 
+. // Q1(ii)
+. 
+. sum household_cons_expenditure_month , detail
+
+      household's usual consumer expenditure in a month
+                            (rs.)
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%         1500            250
+ 5%         2800            300
+10%         3500            450       Obs             102,113
+25%         5000            500       Sum of wgt.     102,113
+
+50%         7500                      Mean           9199.305
+                        Largest       Std. dev.      6640.727
+75%        11000          80000
+90%        17000          90000       Variance       4.41e+07
+95%        20100         100000       Skewness       2.477712
+99%        35000         150000       Kurtosis       14.24712
+
+. 
+. xtile cons_decile = household_cons_expenditure_month ///
+>     [pweight=sampling_wt], nq(10)
+
+.         
+. _pctile household_cons_expenditure_month [pweight = sampling_wt], nq(10)
+
+. 
+. keep common_id household_cons_expenditure_month cons_decile sampling_wt
+
+. save hh_deciles_clean.dta, replace
+file hh_deciles_clean.dta saved
+
+. 
+. collapse (min) min_exp=household_cons_expenditure_month ///
+>          (max) max_exp=household_cons_expenditure_month ///
+>          [pweight=sampling_wt], by(cons_decile)
+
+. 
+. format min_exp max_exp %12.2fc          
+
+. sort cons_decile
+
+. label variable cons_decile "Decile"
+
+. label variable max_exp "Maximum Household Consumption"
+
+. label variable min_exp "Minimum Household Consumption"
+
+. 
+. list
+
+     +-----------------------------------+
+     | cons_d~e     min_exp      max_exp |
+     |-----------------------------------|
+  1. |        1      250.00     3,000.00 |
+  2. |        2    3,002.00     4,000.00 |
+  3. |        3    4,015.00     5,000.00 |
+  4. |        4    5,008.00     5,500.00 |
+  5. |        5    5,501.00     6,000.00 |
+     |-----------------------------------|
+  6. |        6    6,010.00     7,500.00 |
+  7. |        7    7,508.00     9,000.00 |
+  8. |        8    9,015.00    10,500.00 |
+  9. |        9   10,515.00    15,000.00 |
+ 10. |       10   15,012.00   150,000.00 |
+     +-----------------------------------+
+
+. 
+. listtex cons_decile min_exp max_exp using "table_q1ii.tex", ///
+>         replace rstyle(tabular) ///
+>         head("\vspace{1em}" ///
+>                 "\begin{table}[H]" ///
+>          "\centering" ///
+>          "\caption{Household consumption expenditure (Rs) in Deciles}" ///
+>                 "\begin{tabular}{clc}" ///
+>              "\toprule" ///
+>              "Decile & Min HH Consumption & Max HH Consumption  \\" ///
+>              "\midrule") ///
+>          foot("\bottomrule" "\end{tabular}" "\end{table}")
+
+. 
+. 
+. *******************************************************************              
+.                  
+.                  
+. // Q1(iii)
+. 
+. use "level02_FV.dta", clear
+
+. 
+. gen weight =.
+(433,339 missing values generated)
+
+. replace weight = multiplier/100 if nss == nsc
+(101 real changes made)
+
+. replace weight = multiplier/200 if nss != nsc
+(433,238 real changes made)
+
+. 
+. gen sampling_wt = weight/4
+
+. 
+. keep if age >= 15 & age <= 59
+(144,001 observations deleted)
+
+. 
+. label define prnc_status_code 11 "worked in h.h. enterprise (self-employed): own ac
+> count worker" 12 "worked in h.h. enterprise (self-employed): employer" 21 "worked i
+> n h.h. enterprise (self-employed): worked as helper in h.h. enterprise (unpaid fami
+> ly worker)" 31 "worked as regular salaried/ wage employee" 41 "worked as casual wag
+> e labour: in public works" 51 "worked as casual wage labour: in other types of work
+> " 81 "did not work but was seeking and/or available for work" 91 "attended educatio
+> nal institution" 92 "attended domestic duties only" 93 "attended domestic duties an
+> d was also engaged in fre collection of goods (vegetables, roots, firewood, cattle 
+> feed, etc.), sewing, tailoring, weaving, etc. for household use" 94 "rentiers, pens
+> ioners , remittance recipients, etc." 95 "not able to work due to disability" 97 "o
+> thers (including begging, prostitution, etc.)" 99 "children aged 0-4 yrs"
+
+. 
+. gen employed = (pr_status_code >= 11 & pr_status_code <= 51 & !missing(pr_status_co
+> de))
+
+. 
+. preserve
+
+. 
+. collapse (mean) mean_emp=employed [pweight=sampling_wt], by(sex)
+
+. 
+. replace mean_emp = round(mean_emp,0.001)
+(3 real changes made)
+
+. 
+. listtex sex mean_emp using "table_q1iii.tex", ///
+>     replace ///
+>     rstyle(tabular) ///
+>     head("\begin{table}[htbp]" ///
+>          "\centering" ///
+>          "\caption{Weighted mean employment by sex}" ///
+>          "\begin{tabular}{lc}" ///
+>          "\toprule" ///
+>          "Sex & Mean Employment \\" ///
+>          "\midrule") ///
+>     foot("\bottomrule" "\end{tabular}" "\end{table}")
+
+.         
+. restore
+
+. 
+. gen female = (sex == 2)
+
+. 
+. label variable female "Female (1 = yes)"
+
+. label variable employed "Employed"
+
+. 
+. 
+. svyset fsu [pweight=sampling_wt], strata(stratum)
+
+Sampling weights: sampling_wt
+             VCE: linearized
+     Single unit: missing
+        Strata 1: stratum
+ Sampling unit 1: fsu
+           FPC 1: <zero>
+
+. 
+. svy: reg employed female
+(running regress on estimation sample)
+
+Survey: Linear regression
+
+Number of strata =      7                        Number of obs   =     289,338
+Number of PSUs   = 12,773                        Population size = 688,100,915
+                                                 Design df       =      12,766
+                                                 F(1, 12766)     =    27393.61
+                                                 Prob > F        =      0.0000
+                                                 R-squared       =      0.2816
+
+------------------------------------------------------------------------------
+             |             Linearized
+    employed | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      female |  -.5302644   .0032038  -165.51   0.000    -.5365444   -.5239844
+       _cons |   .7434959   .0020417   364.15   0.000     .7394938    .7474979
+------------------------------------------------------------------------------
+
+. estimates store model1_emp_gap
+
+. 
+. 
+. esttab model1_emp_gap using table_q1iii_2.tex, replace ///
+>     cells(b(fmt(3) star) se(fmt(3) par)) ///
+>         stats(N,fmt("%9.0fc")) ///
+>     star(* 0.10 ** 0.05 *** 0.01) ///
+>     title("Gender employment gap") ///
+>     label nogaps 
+(output written to table_q1iii_2.tex)
+
+.         
+. *******************************************************************
+. 
+. // Q1(iv)
+. 
+. preserve
+
+. 
+. merge m:1 common_id using "hh_deciles_clean.dta"
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         4,447
+        from master                         0  (_merge==1)
+        from using                      4,447  (_merge==2)
+
+    Matched                           289,338  (_merge==3)
+    -----------------------------------------
+
+. keep if _merge == 3
+(4,447 observations deleted)
+
+. 
+. 
+. keep if sex == 2
+(146,815 observations deleted)
+
+. keep if !missing(cons_decile)
+(0 observations deleted)
+
+. 
+. 
+. gen emp_selfempl   = (pr_status_code >= 11 & pr_status_code <= 12) if !missing(pr_s
+> tatus_code)
+
+. gen emp_unpaid     = (pr_status_code == 21)                         if !missing(pr_
+> status_code)
+
+. gen emp_regular    = (pr_status_code == 31)                         if !missing(pr_
+> status_code)
+
+. gen emp_casual     = (pr_status_code >= 41 & pr_status_code <= 51)  if !missing(pr_
+> status_code)
+
+. 
+. 
+. collapse (mean) rate_self    = emp_selfempl  ///
+>                rate_unpaid   = emp_unpaid    ///
+>                rate_regular  = emp_regular   ///
+>                rate_casual   = emp_casual    ///
+>          [pweight = sampling_wt], by(cons_decile)
+
+. 
+. 
+. gen x_self    = cons_decile - 0.30
+
+. gen x_unpaid  = cons_decile - 0.10
+
+. gen x_regular = cons_decile + 0.10
+
+. gen x_casual  = cons_decile + 0.30
+
+. 
+. 
+. twoway ///
+>     (bar rate_self    x_self    , color(navy%75)        barwidth(0.18)) ///
+>     (bar rate_unpaid  x_unpaid  , color(maroon%75)      barwidth(0.18)) ///
+>     (bar rate_regular x_regular , color(dkgreen%75)     barwidth(0.18)) ///
+>     (bar rate_casual  x_casual  , color(dkorange%75)    barwidth(0.18)), ///
+>     xlabel(1(1)10) ///
+>     ylabel(0(0.05)0.15, format(%4.2f)) ///
+>     xtitle("Consumption Decile") ///
+>     ytitle("Employment Rate (Females)") ///
+>     legend(order(1 "Self-employed (11-12)" ///
+>                  2 "Unpaid family worker (21)" ///
+>                  3 "Regular wage (31)" ///
+>                  4 "Casual wage (41-51)") ///
+>            position(6) rows(2) size(small)) ///
+>     graphregion(color(white)) 
+
+. 
+. graph export "female_emp_status_decile.png", replace
+file /Users/apple/Desktop/Professional /2026 Applications/Ashoka
+    University/CEDA/data/female_emp_status_decile.png saved as PNG format
+
+. 
+. restore
+
+. 
+. *******************************************************************
+. 
+. // Q1(v)
+. 
+. gen weekly_earnings = ///
+>     wage_earning_act_1_1stday + wage_earning_act_2_1stday + ///
+>         wage_earning_act_1_2ndday + wage_earning_act_2_2ndday + ///
+>         wage_earning_act_1_3rdday + wage_earning_act_2_3rdday + ///
+>         wage_earning_act_1_4thday + wage_earning_act_2_4thday + ///
+>         wage_earning_act_1_5thday + wage_earning_act_2_5thday + ///
+>         wage_earning_act_1_6thday + wage_earning_act_2_6thday + ///
+>         wage_earning_act_1_7thday + wage_earning_act_2_7thday 
+
+. 
+. summarize weekly_earnings
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+weekly_ear~s |    289,338    130.9833    473.5646          0      14000
+
+. 
+. gen days_worked = ///
+>     (tot_hrs_1stday>0) + ///
+>     (tot_hrs_2ndday>0) + ///
+>     (tot_hrs_3rdday>0) + ///
+>     (tot_hrs_4thday>0) + ///
+>     (tot_hrs_5thday>0) + ///
+>     (tot_hrs_6thday>0) + ///
+>     (tot_hrs_7thday>0)
+
+. 
+. summarize days_worked
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+ days_worked |    289,338     3.03218    3.379313          0          7
+
+. gen daily_wage = weekly_earnings / days_worked
+(157,252 missing values generated)
+
+. 
+. 
+. gen salaried_wage = (earning_regular_wage_1 + earning_regular_wage_2) / 30 ///
+>     if pr_status_code == 31
+(247,471 missing values generated)
+
+.         
+. gen salaried_casual = daily_wage if inlist(pr_status_code,41,42,51)
+(264,922 missing values generated)
+
+. 
+. gen salaried_self = daily_wage if inlist(pr_status_code,11,12,21)
+(225,863 missing values generated)
+
+. summ salaried_wage salaried_casual salaried_self
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+salaried_w~e |     41,867     545.648    511.2082          0   23333.33
+salaried_c~l |     24,416    266.0416     123.703          0   2333.333
+salaried_s~f |     63,475    3.377034    26.93884          0       1000
+
+. 
+. label variable salaried_wage "Regular Salaried Wage"
+
+. label variable salaried_casual "Casual Worker Wage"
+
+. label variable salaried_self "Self-employed Wage"
+
+. 
+. estpost summarize salaried_wage salaried_casual salaried_self
+
+             |  e(count)   e(sum_w)    e(mean)     e(Var)      e(sd)     e(min) 
+-------------+------------------------------------------------------------------
+salaried_w~e |     41867      41867    545.648   261333.8   511.2082          0 
+salaried_c~l |     24416      24416   266.0416   15302.42    123.703          0 
+salaried_s~f |     63475      63475   3.377034   725.7009   26.93884          0 
+
+             |    e(max)     e(sum) 
+-------------+----------------------
+salaried_w~e |  23333.33   2.28e+07 
+salaried_c~l |  2333.333    6495671 
+salaried_s~f |      1000   214357.3 
+
+. 
+. esttab using table_q1v.tex, replace ///
+>     cells("mean(fmt(2)) sd(fmt(2)) min(fmt(2)) max(fmt(2)) count(fmt(0))") ///
+>     collabels("Mean" "SD" "Min" "Max" "N") ///
+>     label ///
+>         nonumber ///
+>     title("Daily wage rates by employment type") ///
+>         noobs 
+(output written to table_q1v.tex)
+
+. 
+.         
+. *******************************************************************
+.         
+.         
+. // Q1(vi)
+. 
+. merge m:1 common_id using "level01_FV.dta", keepusing(social_group)
+(label state already defined)
+(label sector already defined)
+
+    Result                      Number of obs
+    -----------------------------------------
+    Not matched                         4,447
+        from master                         0  (_merge==1)
+        from using                      4,447  (_merge==2)
+
+    Matched                           289,338  (_merge==3)
+    -----------------------------------------
+
+. 
+. gen wage = salaried_wage
+(251,918 missing values generated)
+
+. replace wage = salaried_casual if missing(wage)
+(24,416 real changes made)
+
+. replace wage = salaried_self if missing(wage)
+(63,475 real changes made)
+
+. 
+. graph bar (mean) wage [pw=sampling_wt], over(social_group, gap(10)) ///
+>     bar(1, color(navy%70))  ///
+>     ytitle("Average Daily Wage (Rs)") ///
+> 
+
+. graph export "daily_wage_by_caste.png", replace
+file /Users/apple/Desktop/Professional /2026 Applications/Ashoka
+    University/CEDA/data/daily_wage_by_caste.png saved as PNG format
+
+. 
+. 
+. *******************************************************************
+. 
+. 
+. //Q1(vii)
+. 
+. preserve
+
+. keep if wage>0
+(63,189 observations deleted)
+
+. gen log_wage = log(wage)
+(164,027 missing values generated)
+
+. 
+. encode quarter, gen(quarter_fe)      
+
+. 
+. 
+. reghdfe log_wage female age i.education_level [pweight = sampling_wt], ///
+>     absorb(district pr_status_code quarter_fe) ///
+>     vce(cluster district)
+(MWFE estimator converged in 5 iterations)
+
+HDFE Linear regression                            Number of obs   =     66,569
+Absorbing 3 HDFE groups                           F(  13,     70) =     596.83
+Statistics robust to heteroskedasticity           Prob > F        =     0.0000
+                                                  R-squared       =     0.4407
+                                                  Adj R-squared   =     0.4400
+                                                  Within R-sq.    =     0.3223
+Number of clusters (district) =         71        Root MSE        =     0.5354
+
+                                    (Std. err. adjusted for 71 clusters in district)
+------------------------------------------------------------------------------------
+                   |               Robust
+          log_wage | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+            female |  -.4722691   .0156401   -30.20   0.000    -.5034623   -.4410758
+               age |   .0137432   .0004737    29.01   0.000     .0127985     .014688
+                   |
+   education_level |
+Literate withou..  |   .1887483   .1100013     1.72   0.091    -.0306424     .408139
+Literate withou..  |    .127776   .0700173     1.82   0.072    -.0118691    .2674211
+Literate withou..  |   .1658391   .0406345     4.08   0.000     .0847962     .246882
+    Below primary  |   .0275255   .0165087     1.67   0.100    -.0054001    .0604511
+          Primary  |   .0958996    .010021     9.57   0.000     .0759133    .1158859
+           Middle  |   .1592799   .0096289    16.54   0.000     .1400756    .1784841
+        Secondary  |   .2822322   .0130121    21.69   0.000     .2562804    .3081841
+ Higher Secondary  |   .4183345   .0189635    22.06   0.000     .3805129     .456156
+Diploma/Certifi..  |   .7854933   .0320045    24.54   0.000     .7216624    .8493241
+         Graduate  |   .8886751   .0197104    45.09   0.000     .8493639    .9279863
+Post graduate a..  |    1.18926   .0255366    46.57   0.000     1.138329    1.240191
+                   |
+             _cons |   4.983474   .0227078   219.46   0.000     4.938185    5.028764
+------------------------------------------------------------------------------------
+
+Absorbed degrees of freedom:
+--------------------------------------------------------+
+    Absorbed FE | Categories  - Redundant  = Num. Coefs |
+----------------+---------------------------------------|
+       district |        71          71           0    *|
+ pr_status_code |         6           1           5     |
+     quarter_fe |         4           1           3     |
+--------------------------------------------------------+
+* = FE nested within cluster; treated as redundant for DoF computation
+
+.         
+. label variable age "Age"
+
+. 
+. estimates store q_vii
+
+. 
+. esttab q_vii using "table_q1vii.tex", replace ///
+>     keep(female age )  ///
+>         compress ///
+>         width(0.6\hsize) ///
+>     b(3) se(3) ///
+>     star(* 0.10 ** 0.05 *** 0.01) ///
+>     booktabs noobs ///
+>     title("Linear Regression for gender wage gap") ///
+>         mtitles("Log Wage") ///
+>     note("FE: District, Occupation, Quarter. Clustered SE at district.") ///
+>         addnote("Education dummies included.") ///
+>     label 
+(output written to table_q1vii.tex)
+
+.         
+. restore
+
+. 
+. *******************************************************************
+. 
+. // Q1(viii)
+. 
+. 
+. gen post = 0
+
+. replace post = 1 if quarter == "Q3" | quarter == "Q4"
+(143,161 real changes made)
+
+. 
+. 
+. gen female_post = female * post
+(4,447 missing values generated)
+
+. 
+. 
+. keep if age >= 15 & age <= 59
+(4,447 observations deleted)
+
+. keep if wage>0
+(63,189 observations deleted)
+
+. gen log_wage = log(wage)
+(159,580 missing values generated)
+
+. keep if pr_status_code == 31
+(184,821 observations deleted)
+
+. keep if log_wage != .
+(0 observations deleted)
+
+. gen age2 = age^2
+
+. 
+. 
+. label variable female "Female"
+
+. label variable post "Post-policy (Jan 2018 onwards)"
+
+. label variable female_post "Female x Post (DiD)"
+
+. 
+. 
+. reg log_wage female post female_post  age age2 i.education_level ///
+>     i.district [pw=sampling_wt], cluster(district)
+(sum of wgt is 81,118,202.278786)
+
+Linear regression                               Number of obs     =     41,328
+                                                F(15, 70)         =          .
+                                                Prob > F          =          .
+                                                R-squared         =     0.4268
+                                                Root MSE          =      .6128
+
+                                    (Std. err. adjusted for 71 clusters in district)
+------------------------------------------------------------------------------------
+                   |               Robust
+          log_wage | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+            female |  -.4575255   .0287697   -15.90   0.000    -.5149049   -.4001462
+              post |   .0664737    .012387     5.37   0.000     .0417687    .0911787
+       female_post |   -.063658    .025823    -2.47   0.016    -.1151604   -.0121557
+               age |   .0303667   .0036072     8.42   0.000     .0231724    .0375611
+              age2 |  -.0001045   .0000498    -2.10   0.040    -.0002039   -5.06e-06
+                   |
+   education_level |
+Literate withou..  |   .3733253   .2144984     1.74   0.086    -.0544783    .8011288
+Literate withou..  |   .1561069   .1657894     0.94   0.350    -.1745496    .4867635
+Literate withou..  |   .2594495   .1509393     1.72   0.090    -.0415895    .5604885
+    Below primary  |   .1015399     .03931     2.58   0.012     .0231386    .1799412
+          Primary  |    .197954   .0258161     7.67   0.000     .1464655    .2494425
+           Middle  |   .3252286   .0273436    11.89   0.000     .2706934    .3797638
+        Secondary  |   .4934445   .0280425    17.60   0.000     .4375156    .5493734
+ Higher Secondary  |   .6706932   .0265187    25.29   0.000     .6178033    .7235831
+Diploma/Certifi..  |   1.000766   .0348117    28.75   0.000     .9313364    1.070196
+         Graduate  |    1.09218   .0252598    43.24   0.000     1.041801    1.142559
+Post graduate a..  |   1.366156   .0297458    45.93   0.000      1.30683    1.425482
+                   |
+          district |
+                2  |  -.1132981   .0022286   -50.84   0.000    -.1177429   -.1088532
+                3  |  -.0782728   .0017224   -45.44   0.000     -.081708   -.0748377
+                4  |  -.1722812   .0016047  -107.36   0.000    -.1754815   -.1690808
+                5  |  -.0199082   .0019939    -9.98   0.000     -.023885   -.0159315
+                6  |  -.1084974   .0017489   -62.04   0.000    -.1119856   -.1050093
+                7  |  -.0969826   .0016528   -58.68   0.000    -.1002789   -.0936862
+                8  |  -.1291628   .0024149   -53.49   0.000    -.1339791   -.1243465
+                9  |  -.1021755   .0019764   -51.70   0.000    -.1061174   -.0982337
+               10  |  -.2068385   .0022867   -90.45   0.000    -.2113992   -.2022778
+               11  |  -.2963584   .0021067  -140.67   0.000    -.3005601   -.2921567
+               12  |  -.2044461   .0020073  -101.85   0.000    -.2084496   -.2004426
+               13  |  -.1303455    .002833   -46.01   0.000    -.1359957   -.1246953
+               14  |  -.1072485   .0027331   -39.24   0.000    -.1126996   -.1017974
+               15  |  -.1342577   .0021825   -61.52   0.000    -.1386106   -.1299048
+               16  |  -.2023074   .0025787   -78.45   0.000    -.2074505   -.1971643
+               17  |  -.1758091    .001884   -93.32   0.000    -.1795666   -.1720516
+               18  |   .0831088   .0023991    34.64   0.000     .0783239    .0878937
+               19  |  -.1754506   .0016367  -107.20   0.000    -.1787149   -.1721864
+               20  |  -.0984334   .0026526   -37.11   0.000    -.1037238   -.0931429
+               21  |   .0349304   .0019839    17.61   0.000     .0309735    .0388872
+               22  |   .0579203   .0026238    22.07   0.000     .0526873    .0631533
+               23  |  -.2077754   .0027159   -76.50   0.000    -.2131922   -.2023586
+               24  |  -.1695061    .002145   -79.02   0.000    -.1737842   -.1652279
+               25  |    .036188   .0019601    18.46   0.000     .0322786    .0400973
+               26  |  -.1793454    .004269   -42.01   0.000    -.1878597   -.1708311
+               27  |  -.1275386   .0021165   -60.26   0.000    -.1317598   -.1233175
+               28  |  -.1762971   .0027147   -64.94   0.000    -.1817113   -.1708828
+               29  |  -.2137229    .002744   -77.89   0.000    -.2191957   -.2082501
+               30  |  -.3251141   .0023725  -137.04   0.000    -.3298458   -.3203823
+               31  |  -.0552953   .0032019   -17.27   0.000    -.0616814   -.0489093
+               32  |  -.1298533   .0021319   -60.91   0.000    -.1341051   -.1256014
+               33  |  -.2386329   .0038474   -62.02   0.000    -.2463064   -.2309594
+               34  |  -.2275859   .0035238   -64.58   0.000     -.234614   -.2205578
+               35  |   -.299558   .0064898   -46.16   0.000    -.3125014   -.2866145
+               36  |  -.7308537   .0074557   -98.03   0.000    -.7457236   -.7159837
+               37  |  -.5036419   .0045842  -109.86   0.000    -.5127848   -.4944989
+               38  |  -.6267448   .0034431  -182.03   0.000    -.6336119   -.6198777
+               39  |  -.2618139   .0092905   -28.18   0.000    -.2803432   -.2432846
+               40  |  -.2664863   .0059503   -44.79   0.000    -.2783538   -.2546189
+               41  |  -.5708872   .0078479   -72.74   0.000    -.5865393    -.555235
+               42  |  -.2069771   .0068722   -30.12   0.000    -.2206833    -.193271
+               43  |  -.4235951    .008549   -49.55   0.000    -.4406456   -.4065447
+               44  |  -.1308401    .005478   -23.88   0.000    -.1417656   -.1199147
+               45  |  -.4843826   .0041635  -116.34   0.000    -.4926864   -.4760788
+               46  |  -.4499853   .0038659  -116.40   0.000    -.4576956    -.442275
+               47  |  -.9050013   .0076037  -119.02   0.000    -.9201663   -.8898363
+               48  |   -.333353   .0078663   -42.38   0.000    -.3490418   -.3176643
+               49  |  -.7221696   .0099104   -72.87   0.000    -.7419352   -.7024039
+               50  |  -.5280909   .0117695   -44.87   0.000    -.5515644   -.5046174
+               51  |   .0850557   .0085747     9.92   0.000      .067954    .1021574
+               52  |   .2113906    .006572    32.17   0.000     .1982831    .2244982
+               53  |   -.095119   .0067751   -14.04   0.000    -.1086314   -.0816065
+               54  |  -.5479601   .0071182   -76.98   0.000     -.562157   -.5337633
+               55  |  -.7204137    .014608   -49.32   0.000    -.7495484    -.691279
+               56  |  -.4400097   .0080223   -54.85   0.000    -.4560097   -.4240096
+               57  |  -.7831547   .0069878  -112.07   0.000    -.7970914    -.769218
+               58  |  -.5651612   .0111965   -50.48   0.000     -.587492   -.5428304
+               59  |   -.897097   .0069437  -129.20   0.000    -.9109458   -.8832481
+               60  |  -.2248672   .0083862   -26.81   0.000     -.241593   -.2081415
+               61  |   .6163913   .0119612    51.53   0.000     .5925354    .6402472
+               62  |  -.7570888   .0082193   -92.11   0.000    -.7734817   -.7406959
+               63  |  -.3625057   .0135104   -26.83   0.000    -.3894513     -.33556
+               64  |  -.6430321   .0108218   -59.42   0.000    -.6646155   -.6214486
+               65  |  -.3045701   .0042629   -71.45   0.000    -.3130721   -.2960681
+               66  |  -.5130325   .0042746  -120.02   0.000     -.521558    -.504507
+               67  |  -.6962486   .0086229   -80.74   0.000    -.7134463   -.6790508
+               68  |  -1.063079   .0082535  -128.80   0.000     -1.07954   -1.046618
+               69  |   .2504735   .0105007    23.85   0.000     .2295306    .2714165
+               70  |   -.317266   .0052337   -60.62   0.000    -.3277043   -.3068277
+               71  |  -.5435199   .0144335   -37.66   0.000    -.5723065   -.5147333
+                   |
+             _cons |   4.524482    .062697    72.16   0.000     4.399436    4.649527
+------------------------------------------------------------------------------------
+
+. estimates store did_reg2
+
+.         
+. 
+. nlcom (pct_effect: exp(_b[female_post]) - 1)
+
+  pct_effect: exp(_b[female_post]) - 1
+
+------------------------------------------------------------------------------
+    log_wage | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+  pct_effect |  -.0616742   .0242304    -2.55   0.011    -.1091649   -.0141835
+------------------------------------------------------------------------------
+
+. 
+. 
+. esttab did_reg2 using "table_q1viii.tex", replace ///
+>     keep(female post female_post) ///
+>     b(3) se(3) star(* 0.10 ** 0.05 *** 0.01) ///
+>     booktabs ///
+>         label ///
+>         title("DiD estimates for Wage Transparency Policy") ///
+>     mtitles("Log Wage") ///
+>     addnote("\parbox{0.9\linewidth}{District fixed effects; SE clustered at distric
+> t level.}") ///
+>         noobs
+(output written to table_q1viii.tex)
+
+. 
+.         
+. preserve
+
+. 
+. encode quarter, gen(q_num)
+
+. collapse (mean) log_wage [pw=sampling_wt], by(q_num female)
+
+. 
+. twoway ///
+> (line log_wage q_num if female==1) ///
+> (line log_wage q_num if female==0), ///
+> xlabel(1 "Q1" 2 "Q2" 3 "Q3" 4 "Q4") ///
+> xtitle("Quarter") ytitle("Mean Log Wages") ///
+> legend(label(1 "Female") label(2 "Male") ) ///
+> xline(3, lpattern(dash)) ///
+> text(6.18 3 "Wage Transparency Policy", place(e))
+
+. 
+. graph export "did_trends.png", replace
+file /Users/apple/Desktop/Professional /2026 Applications/Ashoka
+    University/CEDA/data/did_trends.png saved as PNG format
+
+. 
+. 
+. restore
+
+. 
+.         
+. 
+end of do-file
+
+. save "level02_FV.dta", replace
+file level02_FV.dta saved
+
+. exit, clear

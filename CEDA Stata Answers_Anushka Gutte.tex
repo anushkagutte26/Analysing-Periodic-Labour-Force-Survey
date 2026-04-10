@@ -1,0 +1,110 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{booktabs}    % professional table lines
+\usepackage{graphicx}    % for \includegraphics
+\usepackage{float}       % for [H] table/figure placement
+\usepackage{amsmath}     % for equations
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{siunitx}
+\usepackage{threeparttable}
+
+% --- Document body ---
+\begin{document}
+\title{CEDA Stata Test Answers}
+\author{Anushka Gutte}
+\maketitle
+
+
+\section{Introduction}
+
+This assignment uses Periodic Labour Force Survey (PLFS) 2017 data to examine consumption patterns, employment outcomes and wage disparities in India. All estimates use appropriate sampling weights, as laid out in the instruction manual.
+
+\subsection{Consumption across States}
+
+Table 1 presents the weighted average household consumption expenditure across states. The top states in terms of consumption are Chandigarh, Andaman \& Nicobar Islands, Delhi, Lakshadweep and Goa.
+
+\input{table_q1i}\label{tab:state_consumption}
+
+\subsection{Deciles of household consumption expenditure}
+
+ Table 2 reports the decile cut-offs for household consumption expenditure. The bottom decile ranges from approximately Rs. 250 to Rs. 3,000, while the top decile begins around Rs. 15,000 and extends significantly higher. The large gap between upper deciles reflects substantial inequality in consumption expenditure.
+
+\input{table_q1ii}
+
+\subsection{Gender differences in employment}
+
+Table 3 presents the survey-weighted mean employment rates by sex for individuals aged 15–59. About 74.4\% of males are employed, compared to 21.3\% of females, highlighting a substantial gender employment gap. Transgender individuals have an employment rate of 31.3\%.
+
+\input{table_q1iii}
+
+To formally assess the magnitude of this gap, the following linear regression model is estimated:
+
+\begin{equation} Employed_i = \alpha + \beta Female_i + \epsilon_i \end{equation}
+\vspace{-5pt}
+
+\input{table_q1iii_2}
+
+Results from Table 4 imply that females are approximately 53 percentage points less likely to be employed compared to males. The difference is statistically significant at the 5\% level.
+
+\subsection{Female employment across consumption deciles}
+
+Figure 1 plots female employment rates by principal status across consumption deciles. The graph shows clear patterns. Casual wage labour dominates in the poorest deciles, with rates around 9.5\% in decile 1 and 7\% in decile 2, declining to near zero by decile 10. Regular salaried employment rises sharply with household wealth, from near zero in the poorest decile to about 8\% in the richest, reflecting that formal wage jobs are concentrated among wealthier women. Self-employment and unpaid family work remain relatively stable across deciles. This compositional shift highlights the need for policies that expand quality employment opportunities for women in the lower and middle consumption segments.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.3]{female_emp_status_decile.png}
+\caption{Female Employment by Principal Status and HH Consumption Decile}
+\end{figure}
+
+\subsection{Daily wage rates by employment type} 
+
+Table 5 summarises the key statistics of daily wage rates for employed individuals by type of employment.
+
+\input{table_q1v}
+
+
+Regular salaried workers earn the highest wages on average, followed by casual workers. Methodologically, daily wages for salaried workers are computed by dividing monthly earnings by 30. For casual and self-employed workers, weekly earnings reported in the survey are used. This is likely why the mean for self-employed individuals is so low, as no alternative measure was available.
+
+\subsection{Daily wage rate by caste status}
+
+Figure 2 shows average daily wages by caste group.
+General caste individuals earn higher wages on average, while SC/ST and OBC groups earn lower wages. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{daily_wage_by_caste.png}
+    \caption{Average Daily Wage by Social Group}
+    \label{fig:stata_graph}
+\end{figure}
+
+\subsection{Gender wage gap}
+The gender wage gap is estimated using the specification:
+\begin{equation} \log(wage_i) = \beta Female_i + f(age_i) + X_i + \delta_d + \delta_o + \delta_t + \epsilon_i \end{equation}
+where district, occupation, and time fixed effects are included and a control for education level. Table 6 shows that the coefficient on Female is negative and statistically significant. Women earn approximately 47.2\% lower wages than men, even after controlling for observable characteristics and fixed effects. This suggests a substantial unexplained gender wage gap.
+
+
+\input{table_q1vii} \label{tab:wage_gap}
+\subsection{Difference-in-Differences analysis} 
+
+To understand how the January 2018 policy change in wage transparency affected the wage gap between males and females, the following DiD specification is used:
+\begin{equation} \log(wage_{it}) = \beta_1 Female_i + \beta_2 Post_t + \beta_3 (Female_i \times Post_t) + X_{it} + \epsilon_{it} \end{equation}
+where $Post_t$ equals 1 after January 2018. Controls include age and education level. 
+The interaction term captures the change in the gender wage gap following the policy. Table 7 shows that the interaction coefficient is negative and statistically significant. Interpreted in percentage terms, this corresponds to approximately a 6.2\% additional decline in female wages relative to males in the post-policy period ($\exp(\beta_3) - 1 = -0.062$, $p = 0.011$).
+
+
+The coefficient on the post-policy indicator is positive and statistically significant, suggesting that wages increased overall after 2018. However, the negative interaction term implies that these gains were not equally shared, with women benefiting less than men.
+
+\input{table_q1viii.tex} 
+
+The key identifying assumption here is that of parallel trends. In the absence of the policy, male and female wages would have followed similar trajectories over time. Figure 3 suggests some divergence in male and female log wages even in the pre-policy period.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{did_trends.png}
+    \caption{Diff-in-Diff estimation}
+    \label{fig:stata_graph}
+\end{figure}
+
+
+\end{document}
