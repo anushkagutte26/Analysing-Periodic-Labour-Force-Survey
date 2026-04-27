@@ -11,6 +11,12 @@
 // (iv) Female employment composition across the distribution
 // (v–viii) Wage analysis, including a DiD specification
 
+// Unit of analysis:
+// - Household-level records are used for consumption analysis
+// - Individual-level records are used for employment and wage analysis
+
+// -----------------------------------------------------------------------------
+
 clear all
 set more off
 capture log close 
@@ -27,10 +33,10 @@ use "level01_FV.dta", clear
 describe
 
 
-*******************************************************************
+// -----------------------------------------------------------------------------
 
 
-// Q1(i)
+// Q1(i) Household consumption analysis
 
 // PLFS requires adjusting multipliers depending on NSS/NSC classification.
 // We construct final sampling weights and normalise them for analysis.
@@ -77,10 +83,10 @@ list
 restore
 
 
-*******************************************************************
+// -----------------------------------------------------------------------------
 
 
-// Q1(ii)
+// Q1(ii) Construction of consumption deciles
 
 sum household_cons_expenditure_month , detail
 
@@ -117,10 +123,9 @@ listtex cons_decile min_exp max_exp using "table_q1ii.tex", ///
          foot("\bottomrule" "\end{tabular}" "\end{table}")
 
 
-*******************************************************************		 
-		 
-		 
-// Q1(iii)
+// -----------------------------------------------------------------------------
+
+// Q1(iii) Employment analysis by gender
 
 use "level02_FV.dta", clear
 
@@ -175,9 +180,10 @@ esttab model1_emp_gap using table_q1iii_2.tex, replace ///
     title("Gender employment gap") ///
     label nogaps 
 	
-*******************************************************************
+// -----------------------------------------------------------------------------
 
-// Q1(iv)
+
+// Q1(iv) Female employment composition by consumption
 
 preserve
 
@@ -228,9 +234,9 @@ graph export "female_emp_status_decile.png", replace
 
 restore
 
-*******************************************************************
+// -----------------------------------------------------------------------------
 
-// Q1(v)
+// Q1(v) Daily Wage construction
 
 gen weekly_earnings = ///
     wage_earning_act_1_1stday + wage_earning_act_2_1stday + ///
@@ -279,10 +285,10 @@ esttab using table_q1v.tex, replace ///
 	noobs 
 
 	
-*******************************************************************
+// -----------------------------------------------------------------------------
 	
 	
-// Q1(vi)
+// Q1(vi) Daily wage by Caste 
 
 merge m:1 common_id using "level01_FV.dta", keepusing(social_group)
 
@@ -297,10 +303,11 @@ graph bar (mean) wage [pw=sampling_wt], over(social_group, gap(10)) ///
 graph export "daily_wage_by_caste.png", replace
 
 
-*******************************************************************
+// -----------------------------------------------------------------------------
 
 
-//Q1(vii)
+
+//Q1(vii) Gender wage gap regression
 
 preserve
 keep if wage>0
@@ -332,9 +339,9 @@ esttab q_vii using "table_q1vii.tex", replace ///
 	
 restore
 
-*******************************************************************
+// -----------------------------------------------------------------------------
 
-// Q1(viii)
+// Q1(viii) Difference-in-differences
 
 
 gen post = 0
