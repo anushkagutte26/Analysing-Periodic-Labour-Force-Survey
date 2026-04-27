@@ -1,7 +1,15 @@
-// Stata test for Research Assistant position at CEDA
-// By Anushka Gutte
-
 // Working with the Periodic labour force data of 2017
+
+// This script analyses consumption, employment patterns, and wage outcomes 
+// using nationally representative PLFS data. All estimates apply appropriate 
+// survey weights to ensure population-level inference.
+
+// The analysis proceeds in five stages:
+// (i) State-level consumption comparisons
+// (ii) Construction of consumption deciles
+// (iii) Employment patterns by gender
+// (iv) Female employment composition across the distribution
+// (v–viii) Wage analysis, including a DiD specification
 
 clear all
 set more off
@@ -23,6 +31,10 @@ describe
 
 
 // Q1(i)
+
+// PLFS requires adjusting multipliers depending on NSS/NSC classification.
+// We construct final sampling weights and normalise them for analysis.
+
 gen weight =.
 replace weight = multiplier/100 if nss == nsc
 replace weight = multiplier/200 if nss != nsc
